@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>KWE Agent LeadGen ScoreBoard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- React 18 UMD -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 </head>
@@ -39,7 +38,7 @@
 
       /* ---------------- Config ---------------- */
       const DEFAULT_URL = "https://script.google.com/macros/s/AKfycbw6OqlTUTHCicI0TNtGH9IbnAS31T6cUqev0qY-fEZ94bZ9RvCf0R0z935mV8Is0JvX/exec";
-      const DEFAULT_TOKEN = "09e0efc10739462a87438a386b92a44f1a0542ed7d5a4054883fb685d14c0142";
+      const DEFAULT_TOKEN = "MGVhOTFkZGQtYzVlMS00MzNkLWI3YzgtMDM1ODE0N2IyNGJkZDExZjNmZDItODE5MC00NzljLWJjOGYtNWJhNWEwNDZkYjk1";
 
       const getLS=(k,f="")=>{ try{ return typeof window!=='undefined'?(localStorage.getItem(k)||f):f }catch{ return f } };
       const setLS=(k,v)=>{ try{ if(typeof window!=='undefined') localStorage.setItem(k,v) }catch{} };
@@ -92,16 +91,16 @@
       function resetForm(){ const t=new Date().toISOString().slice(0,10); setDate(t); setSelectedAgent(""); setNewAgent(""); setFormVals(EMPTY_VALS); }
 
       async function apiGET(params){
-        const qp = new URLSearchParams({ ...params, token });
-        const res = await fetch(`${backendUrl}?${qp.toString()}`);
+        const qp = new URLSearchParams({ ...params, token: token.trim() });
+        const res = await fetch(`${backendUrl.trim()}?${qp.toString()}`);
         let data; try { data = await res.json(); } catch { data = { ok:false, error:"Invalid JSON" }; }
         if (!res.ok || data.error) throw new Error(data.error || `GET ${params.action} failed: ${res.status}`);
         return data;
       }
       async function apiPOST(obj){
-        const payload = JSON.stringify({ ...obj, token });
+        const payload = JSON.stringify({ ...obj, token: token.trim() });
         const body = new URLSearchParams({ payload });
-        const res = await fetch(backendUrl, { method:"POST", body });
+        const res = await fetch(backendUrl.trim(), { method:"POST", body });
         let data; try { data = await res.json(); } catch { data = { ok:false, error:"Invalid JSON" }; }
         if (!res.ok || data.error) throw new Error(data.error || `POST ${obj.action} failed: ${res.status}`);
         return data;
@@ -217,6 +216,26 @@
         catch (e) { alert("Email failed: " + (e.message||e)); }
       }
 
+      /* -------- toolbar helpers ---------- */
+      async function testConnection() {
+        try {
+          const qp = new URLSearchParams({ action: "ping", token: token.trim() });
+          const res = await fetch(`${backendUrl.trim()}?${qp.toString()}`);
+          const text = await res.text(); // raw (JSON or HTML if misconfigured)
+          alert("Ping response:\n" + text);
+        } catch (e) { alert("Ping failed: " + (e.message || e)); }
+      }
+      function resetSettings() {
+        try {
+          localStorage.removeItem("kwe_url");
+          localStorage.removeItem("kwe_token");
+        } catch {}
+        setBackendUrl(DEFAULT_URL);
+        setToken(DEFAULT_TOKEN);
+        setStatus({ ok:false, msg:"Not connected" });
+        alert("Settings reset. Defaults loaded.");
+      }
+
       // Render series table (Mon–Fri, totals per metric)
       function MatrixTable({ heading, weekStart, days }){
         const headers = [0,1,2,3,4].map(i => {
@@ -267,8 +286,10 @@
                 ),
                 /* Connection settings */
                 React.createElement('div', { className:'flex flex-wrap items-center gap-2' },
-                  React.createElement('input', { value:backendUrl, onChange:e=>setBackendUrl(e.target.value), onBlur:()=>saveConfig(backendUrl,token), placeholder:'Backend URL', className:'w-[360px] rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-[12px]' }),
-                  React.createElement('input', { value:token, onChange:e=>setToken(e.target.value), onBlur:()=>saveConfig(backendUrl,token), placeholder:'API Token', className:'w-[320px] rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-[12px]' }),
+                  React.createElement('input', { value:backendUrl, onChange:e=>setBackendUrl(e.target.value), onBlur:()=>{ const u=backendUrl.trim(); const t=token.trim(); setBackendUrl(u); setToken(t); saveConfig(u,t); }, placeholder:'Backend URL', className:'w-[360px] rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-[12px]' }),
+                  React.createElement('input', { value:token, onChange:e=>setToken(e.target.value), onBlur:()=>{ const u=backendUrl.trim(); const t=token.trim(); setBackendUrl(u); setToken(t); saveConfig(u,t); }, placeholder:'API Token', className:'w-[320px] rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-[12px]' }),
+                  React.createElement('button', { onClick:testConnection, className:'rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-[12px]' }, 'Test'),
+                  React.createElement('button', { onClick:resetSettings, className:'rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-[12px]' }, 'Reset settings'),
                   React.createElement('div', { className:`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs ${status.ok?'border-emerald-700 bg-emerald-900/40 text-emerald-200':'border-neutral-700 bg-neutral-900 text-neutral-300'}` }, status.ok ? 'Connected' : 'Connection failed')
                 )
               ),

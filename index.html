@@ -84,8 +84,8 @@
       const [formVals, setFormVals] = useState(EMPTY_VALS);
 
       // matrix/week series
-      const [matrixAgent, setMatrixAgent] = useState(""); // '' = ALL agents
-      const [series, setSeries] = useState([]);           // current week days
+      const [matrixAgent, setMatrixAgent] = useState("");   // '' = ALL agents
+      const [series, setSeries] = useState([]);             // current week (days)
       const [seriesByWeek, setSeriesByWeek] = useState({}); // { weekStartISO: days[] }
 
       function saveConfig(u,t){ setLS("kwe_url", u); setLS("kwe_token", t); }

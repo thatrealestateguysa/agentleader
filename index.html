@@ -2,479 +2,262 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>KWE Agent LeadGen ScoreBoard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin:0; font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#0b0b0c; color:#fff; }
+    .wrap { max-width:1100px; margin:0 auto; padding:20px; }
+    .header { position:sticky; top:0; z-index:10; background:rgba(0,0,0,.6); backdrop-filter:saturate(1.2) blur(6px); border-bottom:1px solid #26262a; }
+    .brand { display:flex; gap:12px; align-items:center; }
+    .kw { width:40px; height:40px; border-radius:12px; background:#C70000; display:grid; place-items:center; font-weight:800; }
+    .row { display:grid; gap:16px; grid-template-columns:1fr 1.2fr; }
+    @media (max-width:900px){ .row { grid-template-columns:1fr; } }
+    .card { border:1px solid #26262a; background:rgba(15,15,16,.7); border-radius:16px; box-shadow:0 6px 18px rgba(0,0,0,.35); }
+    .card > .head { padding:14px 16px; border-bottom:1px solid #26262a; }
+    .card > .body { padding:16px; }
+    input,select,button { font:inherit; }
+    input,select { background:#0f0f12; border:1px solid #34343a; color:#eee; border-radius:10px; padding:10px; width:100%; }
+    input[type="number"] { text-align:right; }
+    button { background:#111216; color:#eee; border:1px solid #34343a; border-radius:10px; padding:10px 12px; cursor:pointer; }
+    button.primary { background:#C70000; border-color:#7e0000; font-weight:600; }
+    button.ghost { background:#0f0f12; }
+    table { width:100%; border-collapse:collapse; }
+    thead th { position:sticky; top:0; background:#0b0b0c; }
+    th, td { padding:8px; border-bottom:1px solid #1f1f22; }
+    td.num { text-align:right; font-variant-numeric:tabular-nums; }
+    .pill { padding:4px 10px; border:1px solid #34343a; border-radius:999px; font-size:12px; }
+    .pill.ok { background:#0f2a18; color:#c6f6d5; border-color:#1e5b3a; }
+    .pill.bad { background:#121218; color:#cbd5e1; }
+    .tabs { display:flex; gap:8px; flex-wrap:wrap; }
+    .tabs button.active { background:#C70000; border-color:#7e0000; }
+    .grid { display:grid; gap:12px; }
+    .grid2 { grid-template-columns:1fr 1fr; }
+  </style>
 </head>
-<body class="bg-neutral-950 text-white">
-  <div id="root"></div>
+<body>
+  <div class="header">
+    <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
+      <div class="brand">
+        <div class="kw">KW</div>
+        <div>
+          <div style="font-weight:600">KWE Agent LeadGen ScoreBoard</div>
+          <div style="font-size:12px;color:#a3a3ad">Africa/Johannesburg · Google Sheet powered</div>
+        </div>
+      </div>
+      <div id="conn" class="pill bad">Checking…</div>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding:20px;">
+    <div class="row">
+      <!-- Submit -->
+      <section class="card">
+        <div class="head"><strong>Submit Daily Activity</strong></div>
+        <div class="body">
+          <form id="form">
+            <div class="grid">
+              <div>
+                <label style="font-size:12px;color:#a3a3ad">Date</label>
+                <input id="date" type="date" />
+              </div>
+
+              <div>
+                <label style="font-size:12px;color:#a3a3ad">Agent (select or add new)</label>
+                <select id="agentSelect">
+                  <option value="">— Select existing —</option>
+                </select>
+                <div style="font-size:12px;color:#a3a3ad;margin:6px 0 4px;">or add new</div>
+                <input id="agentNew" placeholder="Type new agent name"/>
+              </div>
+
+              <div class="grid grid2">
+                <div><label style="font-size:12px;color:#a3a3ad">Dials</label><input id="dials" type="number" min="0" value="0"/></div>
+                <div><label style="font-size:12px;color:#a3a3ad">Calls Answered</label><input id="answered" type="number" min="0" value="0"/></div>
+                <div><label style="font-size:12px;color:#a3a3ad">Whatsapps</label><input id="whatsapps" type="number" min="0" value="0"/></div>
+                <div><label style="font-size:12px;color:#a3a3ad">NO’s</label><input id="nos" type="number" min="0" value="0"/></div>
+                <div><label style="font-size:12px;color:#a3a3ad">Appointments made</label><input id="appointments" type="number" min="0" value="0"/></div>
+                <div><label style="font-size:12px;color:#a3a3ad">Listings</label><input id="listings" type="number" min="0" value="0"/></div>
+              </div>
+
+              <div style="display:flex;gap:8px">
+                <button class="primary" type="submit">Save Entry</button>
+                <button class="ghost" type="button" id="clearBtn">Clear numbers</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Leaderboard -->
+      <section class="card">
+        <div class="head" style="display:flex;justify-content:space-between;align-items:center;">
+          <strong>Leaderboard</strong>
+          <div class="tabs">
+            <button data-period="daily"  class="ghost active">Today</button>
+            <button data-period="weekly" class="ghost">This Week</button>
+            <button data-period="monthly"class="ghost">This Month</button>
+            <button id="refreshBtn" class="ghost">Refresh</button>
+          </div>
+        </div>
+        <div class="body">
+          <div style="max-height:520px;overflow:auto;border:1px solid #26262a;border-radius:12px;">
+            <table id="table">
+              <thead>
+                <tr>
+                  <th style="text-align:left">Agent</th>
+                  <th>Dials</th>
+                  <th>Calls Answered</th>
+                  <th>Whatsapps</th>
+                  <th>NO’s</th>
+                  <th>Appointments</th>
+                  <th>Listings</th>
+                </tr>
+              </thead>
+              <tbody id="tbody">
+                <tr><td colspan="7" style="text-align:center;color:#a3a3ad;padding:16px">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
 
   <script>
-    const { useEffect, useMemo, useState } = React;
+    // NEW deployment + token:
+    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwyiazfLj2VBAA9abMiApEVf_kg9Rt2lvyN0RumoD_1JJzWtq-tWeCzNqgglv9PXRtX/exec";
+    const API_TOKEN   = "OGIyOTUxNjItOTdkMy00ZWU4LWIyNTQtYTk2OWU0Y2MyMDE3YjFkNjU2OGQtYjdlNy00MmVhLWI3NzMtNDAyYTM3MTRkOTU4";
 
-    /* ---------------- Error boundary (avoid blank screen) ---------------- */
-    class ErrorBoundary extends React.Component {
-      constructor(props){ super(props); this.state = { hasError:false, err:'' }; }
-      static getDerivedStateFromError(error){ return { hasError:true, err:String(error) }; }
-      componentDidCatch(error, info){ console.error('Render error:', error, info); }
-      render(){
-        if (this.state.hasError){
-          return React.createElement('div', { className:'min-h-screen bg-neutral-950 text-white p-6' },
-            React.createElement('div', { className:'mx-auto max-w-2xl rounded-2xl border border-red-800 bg-red-950/40 p-4' },
-              React.createElement('h2', { className:'text-lg font-semibold text-red-300' }, 'Something went wrong'),
-              React.createElement('p', { className:'mt-2 text-sm text-red-200 whitespace-pre-wrap' }, this.state.err),
-              React.createElement('p', { className:'mt-3 text-xs text-neutral-400' }, 'Check your backend URL/token in the header.')
-            )
-          );
-        }
-        return this.props.children;
+    async function apiGET(params){
+      const qp = new URLSearchParams({ ...params, token: API_TOKEN });
+      const res = await fetch(`${BACKEND_URL}?${qp.toString()}`);
+      let data; try { data = await res.json(); } catch { data = { ok:false, error:"Invalid JSON" }; }
+      if (!res.ok || data.error) throw new Error(data.error || "GET failed");
+      return data;
+    }
+    async function apiPOST(obj){
+      const payload = JSON.stringify({ ...obj, token: API_TOKEN });
+      const res = await fetch(BACKEND_URL, { method:"POST", body: new URLSearchParams({ payload }) });
+      let data; try { data = await res.json(); } catch { data = { ok:false, error:"Invalid JSON" }; }
+      if (!res.ok || data.error) throw new Error(data.error || "POST failed");
+      return data;
+    }
+
+    const connEl = document.getElementById('conn');
+    const dateEl = document.getElementById('date');
+    const agentSelect = document.getElementById('agentSelect');
+    const agentNew = document.getElementById('agentNew');
+    const fields = ["dials","answered","whatsapps","nos","appointments","listings"]
+      .reduce((m,k)=> (m[k]=document.getElementById(k),m),{});
+    const form = document.getElementById('form');
+    const clearBtn = document.getElementById('clearBtn');
+    const tbody = document.getElementById('tbody');
+    const tabs = Array.from(document.querySelectorAll('.tabs button[data-period]'));
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    let currentPeriod = 'daily';
+
+    function todayISO(){ const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
+    function resetNumbers(){ Object.values(fields).forEach(i=> i.value = 0); }
+
+    async function ping(){
+      try { await apiGET({ action:"ping" }); connEl.textContent = "Connected"; connEl.className = "pill ok"; }
+      catch { connEl.textContent = "Offline"; connEl.className = "pill bad"; }
+    }
+
+    async function loadAgents(){
+      try {
+        const d = await apiGET({ action:"agents" });
+        const list = Array.isArray(d.agents) ? d.agents : [];
+        agentSelect.innerHTML = '<option value="">— Select existing —</option>' + list.map(a=>`<option>${a}</option>`).join('');
+      } catch (_) {
+        agentSelect.innerHTML = '<option value="">(none)</option>';
       }
     }
 
-    function App(){
+    function renderTable(rows){
+      if (!rows || !rows.length){
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#a3a3ad;padding:16px">No data</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.map(r=>`
+        <tr>
+          <td>${escapeHtml(r.agent||'(no name)')}</td>
+          <td class="num">${r.dials||0}</td>
+          <td class="num">${r.answered||0}</td>
+          <td class="num">${r.whatsapps||0}</td>
+          <td class="num">${r.nos||0}</td>
+          <td class="num"><strong>${r.appointments||0}</strong></td>
+          <td class="num"><strong>${r.listings||0}</strong></td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadStats(){
+      try {
+        const d = await apiGET({ action:"stats", period: currentPeriod });
+        renderTable(Array.isArray(d.totals)?d.totals:[]);
+      } catch (e) {
+        renderTable([]);
+      }
+    }
+
+    function setActiveTab(){
+      tabs.forEach(b=> b.classList.toggle('active', b.dataset.period===currentPeriod));
+    }
+
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const agent = (agentNew.value.trim() || agentSelect.value).trim();
+      if (!agent) return alert("Select or type an agent name.");
+      const entry = {
+        date: dateEl.value || todayISO(),
+        agent,
+        dials: Number(fields.dials.value||0),
+        answered: Number(fields.answered.value||0),
+        whatsapps: Number(fields.whatsapps.value||0),
+        nos: Number(fields.nos.value||0),
+        appointments: Number(fields.appointments.value||0),
+        listings: Number(fields.listings.value||0),
+      };
+      try {
+        await apiPOST({ action:"submit", entry });
+        if (agentNew.value.trim()) await apiPOST({ action:"registeragent", agent });
+        dateEl.value = todayISO();
+        agentSelect.value = "";
+        agentNew.value = "";
+        resetNumbers();
+        await loadAgents();
+        await loadStats();
+        alert("Saved ✔");
+      } catch (err) {
+        alert("Save failed: " + (err.message||err));
+      }
+    });
+
+    clearBtn.addEventListener('click', resetNumbers);
+
+    tabs.forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        currentPeriod = btn.dataset.period;
+        setActiveTab();
+        loadStats();
+      });
+    });
+
+    refreshBtn.addEventListener('click', loadStats);
+
+    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+    (async function init(){
       document.title = "KWE Agent LeadGen ScoreBoard";
-
-      /* ---------------- Config ---------------- */
-      const DEFAULT_URL = "https://script.google.com/macros/s/AKfycbw6OqlTUTHCicI0TNtGH9IbnAS31T6cUqev0qY-fEZ94bZ9RvCf0R0z935mV8Is0JvX/exec";
-      const DEFAULT_TOKEN = "MGVhOTFkZGQtYzVlMS00MzNkLWI3YzgtMDM1ODE0N2IyNGJkZDExZjNmZDItODE5MC00NzljLWJjOGYtNWJhNWEwNDZkYjk1";
-
-      const getLS=(k,f="")=>{ try{ return typeof window!=='undefined'?(localStorage.getItem(k)||f):f }catch{ return f } };
-      const setLS=(k,v)=>{ try{ if(typeof window!=='undefined') localStorage.setItem(k,v) }catch{} };
-
-      const [backendUrl, setBackendUrl] = useState(() => getLS("kwe_url", DEFAULT_URL));
-      const [token, setToken] = useState(() => getLS("kwe_token", DEFAULT_TOKEN));
-
-      /* ---------------- UI State ---------------- */
-      const tabs = [
-        { key: "daily", label: "Today" },
-        { key: "weekly", label: "This Week" },
-        { key: "monthly", label: "This Month" },
-      ];
-      const metricDefs = [
-        { key:"dials",        label:"Dials" },
-        { key:"answered",     label:"Calls Answered" },
-        { key:"whatsapps",    label:"Whatsapps" },
-        { key:"nos",          label:"NO’s" },
-        { key:"appointments", label:"Appointments made" },
-        { key:"listings",     label:"Listings" },
-      ];
-
-      const [layout, setLayout] = useState("scoreboard");
-      const [view, setView] = useState("daily");
-      const [sortKey, setSortKey] = useState("appointments");
-      const [selectedMetric, setSelectedMetric] = useState("appointments");
-      const [query, setQuery] = useState("");
-      const [status, setStatus] = useState({ ok:false, msg:"Not connected" });
-      const [lastError, setLastError] = useState("");
-
-      // leaderboard rows
-      const [rows, setRows] = useState([]);
-      // agents
-      const [agents, setAgents] = useState([]);
-      const [selectedAgent, setSelectedAgent] = useState("");
-      const [newAgent, setNewAgent] = useState("");
-
-      // submit form
-      const todayISO = new Date().toISOString().slice(0,10);
-      const [date, setDate] = useState(todayISO);
-      const EMPTY_VALS = { dials:0, answered:0, whatsapps:0, nos:0, appointments:0, listings:0 };
-      const [formVals, setFormVals] = useState(EMPTY_VALS);
-
-      // matrix/week series
-      const [matrixAgent, setMatrixAgent] = useState("");   // '' = ALL agents
-      const [series, setSeries] = useState([]);             // current week (days)
-      const [seriesByWeek, setSeriesByWeek] = useState({}); // { weekStartISO: days[] }
-
-      function saveConfig(u,t){ setLS("kwe_url", u); setLS("kwe_token", t); }
-      function resetForm(){ const t=new Date().toISOString().slice(0,10); setDate(t); setSelectedAgent(""); setNewAgent(""); setFormVals(EMPTY_VALS); }
-
-      async function apiGET(params){
-        const qp = new URLSearchParams({ ...params, token: token.trim() });
-        const res = await fetch(`${backendUrl.trim()}?${qp.toString()}`);
-        let data; try { data = await res.json(); } catch { data = { ok:false, error:"Invalid JSON" }; }
-        if (!res.ok || data.error) throw new Error(data.error || `GET ${params.action} failed: ${res.status}`);
-        return data;
-      }
-      async function apiPOST(obj){
-        const payload = JSON.stringify({ ...obj, token: token.trim() });
-        const body = new URLSearchParams({ payload });
-        const res = await fetch(backendUrl.trim(), { method:"POST", body });
-        let data; try { data = await res.json(); } catch { data = { ok:false, error:"Invalid JSON" }; }
-        if (!res.ok || data.error) throw new Error(data.error || `POST ${obj.action} failed: ${res.status}`);
-        return data;
-      }
-
-      async function loadAgents(){
-        try {
-          const d = await apiGET({ action:"agents" });
-          const list = Array.isArray(d.agents) ? d.agents : [];
-          setAgents(list);
-          if (!selectedAgent && list.length) setSelectedAgent(list[0]);
-        } catch (e) { setLastError(String(e.message||e)); }
-      }
-      async function loadStats(period=view){
-        try {
-          const d = await apiGET({ action:"stats", period });
-          const totals = Array.isArray(d.totals) ? d.totals : [];
-          setRows(totals.map(r => ({
-            agent:r.agent||"", dials:r.dials||0, answered:r.answered||0,
-            whatsapps:r.whatsapps||0, nos:r.nos||0, appointments:r.appointments||0, listings:r.listings||0
-          })));
-        } catch (e) { setRows([]); setLastError(String(e.message||e)); }
-      }
-      async function ping(){
-        try { const d = await apiGET({ action:"ping" }); setStatus({ ok:!!d.ok, msg:"Connected" }); }
-        catch (e) { setStatus({ ok:false, msg:"Connection failed" }); setLastError(String(e.message||e)); }
-      }
-
-      // time helpers
-      function startOfWeekMonday(d){ const dt=new Date(d); const day=dt.getDay(); const diff=day===0?-6:1-day; dt.setDate(dt.getDate()+diff); dt.setHours(0,0,0,0); return dt; }
-      function addDays(d,n){ const dt=new Date(d); dt.setDate(dt.getDate()+n); return dt; }
-      function iso(d){ return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10); }
-      const fmtZA = (d,opts)=>d.toLocaleDateString("en-ZA",opts);
-      function fmtWeekLabel(d){ return `Week of ${fmtZA(d,{day:"2-digit",month:"short",year:"numeric"})}`; }
-
-      // series loaders
-      async function loadWeekSeries(weekStartDate, agent=""){
-        const startISO=iso(weekStartDate); const endISO=iso(addDays(weekStartDate,6));
-        const d = await apiGET({ action:"timeseries", start:startISO, end:endISO, agent });
-        return Array.isArray(d.days) ? d.days : [];
-      }
-
-      // initial + when config changes
-      useEffect(() => { if (!backendUrl || !token) return; ping(); loadAgents(); loadStats(view); }, [backendUrl, token, view]);
-
-      // matrix current week
-      const currentWeekStart = startOfWeekMonday(new Date());
-      useEffect(() => {
-        if (layout!=="matrix" && layout!=="weekmatrix") return;
-        (async () => { try { const s = await loadWeekSeries(currentWeekStart, matrixAgent); setSeries(s); } catch { setSeries([]); } })();
-      }, [layout, matrixAgent, backendUrl, token]);
-
-      // weekmatrix last 5 weeks
-      const weekStarts = Array.from({length:5}, (_,i) => addDays(currentWeekStart, -7*i));
-      useEffect(() => {
-        if (layout!=="weekmatrix") return;
-        (async () => {
-          const entries = await Promise.all(
-            weekStarts.map(ws => loadWeekSeries(ws, matrixAgent)
-              .then(days => [iso(ws), days])
-              .catch(()  => [iso(ws), []])
-            )
-          );
-          const map = {}; entries.forEach(([k,days]) => map[k]=days);
-          setSeriesByWeek(map);
-        })();
-      }, [layout, matrixAgent, backendUrl, token]);
-
-      // derived leaderboard
-      const data = useMemo(() =>
-        rows
-          .filter(r => (r.agent||"").toLowerCase().includes((query||"").toLowerCase()))
-          .sort((a,b) => (b[sortKey]||0) - (a[sortKey]||0))
-          .map((r,i) => ({ ...r, rank:i+1 }))
-      , [rows, sortKey, query]);
-
-      const chartData = useMemo(() => {
-        const max = Math.max(1, ...data.map(d => d[selectedMetric]||0));
-        return data.map(d => ({ agent:d.agent||"", value:d[selectedMetric]||0, pct:((d[selectedMetric]||0)/max)*100 }));
-      }, [data, selectedMetric]);
-
-      async function onSubmit(e){
-        e.preventDefault();
-        if (!token) return alert("Please set your API token.");
-        const agent = (newAgent.trim() || selectedAgent || "").trim();
-        if (!agent) return alert("Select or enter an agent name.");
-        const entry = { date, agent, ...formVals };
-        try {
-          const res = await apiPOST({ action:"submit", entry });
-          if (res.ok){
-            if (newAgent.trim()) await apiPOST({ action:"registeragent", agent });
-            resetForm();
-            await loadAgents(); await loadStats(view);
-            // refresh matrix views if visible
-            if (layout==="matrix" || layout==="weekmatrix"){
-              try {
-                const s = await loadWeekSeries(currentWeekStart, matrixAgent);
-                setSeries(s);
-                if (layout==="weekmatrix"){
-                  const entries = await Promise.all(
-                    weekStarts.map(ws => loadWeekSeries(ws, matrixAgent).then(days => [iso(ws),days]))
-                  );
-                  const map = {}; entries.forEach(([k,days]) => map[k]=days); setSeriesByWeek(map);
-                }
-              } catch {}
-            }
-            alert("Saved ✔");
-          }
-        } catch (e) { alert("Save failed: " + (e.message||e)); }
-      }
-      async function onSendEmail(){
-        try { const r = await apiPOST({ action:"email", period:view }); if (r.ok) alert("Email sent ✔"); }
-        catch (e) { alert("Email failed: " + (e.message||e)); }
-      }
-
-      /* -------- toolbar helpers ---------- */
-      async function testConnection() {
-        try {
-          const qp = new URLSearchParams({ action: "ping", token: token.trim() });
-          const res = await fetch(`${backendUrl.trim()}?${qp.toString()}`);
-          const text = await res.text(); // raw (JSON or HTML if misconfigured)
-          alert("Ping response:\n" + text);
-        } catch (e) { alert("Ping failed: " + (e.message || e)); }
-      }
-      function resetSettings() {
-        try {
-          localStorage.removeItem("kwe_url");
-          localStorage.removeItem("kwe_token");
-        } catch {}
-        setBackendUrl(DEFAULT_URL);
-        setToken(DEFAULT_TOKEN);
-        setStatus({ ok:false, msg:"Not connected" });
-        alert("Settings reset. Defaults loaded.");
-      }
-
-      // Render series table (Mon–Fri, totals per metric)
-      function MatrixTable({ heading, weekStart, days }){
-        const headers = [0,1,2,3,4].map(i => {
-          const d = addDays(weekStart, i);
-          return { label: `${d.toLocaleDateString("en-ZA",{weekday:"short"})} ${fmtZA(d,{day:"2-digit",month:"short"})}`, iso: iso(d) };
-        });
-        const byDate = {}; (days||[]).forEach(d => byDate[d.date]=d);
-
-        return React.createElement('div', { className:'mb-6 rounded-2xl border-4 border-black bg-white text-black shadow-xl' },
-          heading && React.createElement('div', { className:'border-b-4 border-black px-4 py-2 text-base font-bold' }, heading),
-          React.createElement('div', { className:'overflow-auto p-3' },
-            React.createElement('table', { className:'min-w-[900px] border-separate border-spacing-0' },
-              React.createElement('thead', null,
-                React.createElement('tr', null,
-                  React.createElement('th', { className:'sticky left-0 z-10 bg-white px-3 py-2 text-left text-[13px] font-bold border-2 border-black' }, 'Metric'),
-                  ...headers.map(h => React.createElement('th', { key:h.iso, className:'px-4 py-2 text-center text-[13px] font-bold border-2 border-black whitespace-nowrap' }, h.label))
-                )
-              ),
-              React.createElement('tbody', null,
-                ...metricDefs.map(m => React.createElement('tr', { key:m.key },
-                  React.createElement('td', { className:'sticky left-0 z-10 bg-white px-3 py-2 text-[13px] font-semibold border-2 border-black' }, m.label),
-                  ...headers.map(h => {
-                    const val = (byDate[h.iso]?.[m.key]) || 0;
-                    return React.createElement('td', { key:h.iso, className:'border-2 border-black px-3 py-2 text-right tabular-nums' }, val);
-                  })
-                ))
-              )
-            )
-          )
-        );
-      }
-
-      const needsSetup = !token || !backendUrl;
-
-      /* ---------------- Render ---------------- */
-      return React.createElement(ErrorBoundary, null,
-        React.createElement('div', { className:'min-h-screen bg-gradient-to-b from-[#0E0E10] to-[#1A1A1D] text-white' },
-          /* Header */
-          React.createElement('header', { className:'sticky top-0 z-50 border-b border-neutral-800/80 bg-black/50 backdrop-blur' },
-            React.createElement('div', { className:'mx-auto max-w-6xl px-4 py-3' },
-              React.createElement('div', { className:'flex flex-wrap items-center gap-4 justify-between' },
-                React.createElement('div', { className:'flex items-center gap-3' },
-                  React.createElement('div', { className:'grid h-10 w-10 place-items-center rounded-xl bg-[#C70000] font-extrabold shadow-[0_6px_14px_rgba(199,0,0,0.35)]' }, 'KW'),
-                  React.createElement('div', null,
-                    React.createElement('h1', { className:'m-0 text-[20px] font-semibold tracking-tight' }, 'KWE Agent LeadGen ScoreBoard'),
-                    React.createElement('p', { className:'m-0 text-xs text-neutral-400' }, 'Daily inputs → Weekly & Monthly leaderboards · Africa/Johannesburg')
-                  )
-                ),
-                /* Connection settings */
-                React.createElement('div', { className:'flex flex-wrap items-center gap-2' },
-                  React.createElement('input', { value:backendUrl, onChange:e=>setBackendUrl(e.target.value), onBlur:()=>{ const u=backendUrl.trim(); const t=token.trim(); setBackendUrl(u); setToken(t); saveConfig(u,t); }, placeholder:'Backend URL', className:'w-[360px] rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-[12px]' }),
-                  React.createElement('input', { value:token, onChange:e=>setToken(e.target.value), onBlur:()=>{ const u=backendUrl.trim(); const t=token.trim(); setBackendUrl(u); setToken(t); saveConfig(u,t); }, placeholder:'API Token', className:'w-[320px] rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-[12px]' }),
-                  React.createElement('button', { onClick:testConnection, className:'rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-[12px]' }, 'Test'),
-                  React.createElement('button', { onClick:resetSettings, className:'rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-[12px]' }, 'Reset settings'),
-                  React.createElement('div', { className:`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs ${status.ok?'border-emerald-700 bg-emerald-900/40 text-emerald-200':'border-neutral-700 bg-neutral-900 text-neutral-300'}` }, status.ok ? 'Connected' : 'Connection failed')
-                )
-              ),
-              /* Layout toggles */
-              React.createElement('div', { className:'mt-3 flex flex-wrap items-center gap-2' },
-                React.createElement('button', { onClick:()=>setLayout('scoreboard'), className:`rounded-lg border px-3 py-2 text-xs ${layout==='scoreboard'?'border-red-700 bg-[#C70000]':'border-neutral-700 bg-neutral-900'}` }, 'Scoreboard'),
-                React.createElement('button', { onClick:()=>setLayout('matrix'), className:`rounded-lg border px-3 py-2 text-xs ${layout==='matrix'?'border-red-700 bg-[#C70000]':'border-neutral-700 bg-neutral-900'}` }, 'Matrix'),
-                React.createElement('button', { onClick:()=>setLayout('weekmatrix'), className:`rounded-lg border px-3 py-2 text-xs ${layout==='weekmatrix'?'border-red-700 bg-[#C70000]':'border-neutral-700 bg-neutral-900'}` }, 'Week-on-Week'),
-                lastError && React.createElement('span', { className:'ml-2 text-xs text-red-300' }, lastError)
-              )
-            )
-          ),
-
-          /* Main */
-          React.createElement('main', { className:'mx-auto max-w-6xl px-4 py-6' },
-            needsSetup && React.createElement('div', { className:'mb-4 rounded-xl border border-yellow-800 bg-yellow-950/30 p-4' },
-              React.createElement('h3', { className:'text-sm font-semibold text-yellow-200' }, 'Setup'),
-              React.createElement('p', { className:'mt-1 text-xs text-yellow-100' }, 'Token & URL persist locally in your browser.')
-            ),
-
-            /* Scoreboard */
-            layout==='scoreboard' && React.createElement('div', { className:'grid grid-cols-1 gap-4 lg:grid-cols-[1.2fr_1fr]' },
-              React.createElement('section', { className:'rounded-2xl border border-neutral-800 bg-neutral-950/60 shadow-xl' },
-                React.createElement('div', { className:'border-b border-neutral-800/80 bg-gradient-to-b from-neutral-900 to-neutral-950 rounded-t-2xl p-4' },
-                  React.createElement('div', { className:'flex items-center justify-between' },
-                    React.createElement('h2', { className:'text-base font-semibold' }, 'Leaderboard'),
-                    React.createElement('div', { className:'flex items-center gap-2' },
-                      ...tabs.map(t => React.createElement('button', {
-                        key:t.key, onClick:()=>setView(t.key),
-                        className:`rounded-lg border px-3 py-2 text-xs ${view===t.key?'border-red-700 bg-[#C70000] text-white':'border-neutral-700 bg-neutral-900 text-neutral-300 hover:bg-neutral-800'}`
-                      }, t.label))
-                    )
-                  )
-                ),
-                React.createElement('div', { className:'p-4' },
-                  React.createElement('div', { className:'mt-0 flex flex-wrap items-center gap-3' },
-                    React.createElement('input', { placeholder:'Search agents…', value:query, onChange:e=>setQuery(e.target.value), className:'ml-1 w-64 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-700' }),
-                    React.createElement('div', { className:'ml-auto flex items-center gap-2 text-xs text-neutral-400' }, 'Sort by',
-                      React.createElement('select', { className:'rounded-lg border border-neutral-700 bg-neutral-900 px-2 py-2 text-xs text-neutral-100', value:sortKey, onChange:e=>setSortKey(e.target.value) },
-                        ...metricDefs.map(m => React.createElement('option', { key:m.key, value:m.key }, m.label))
-                      )
-                    )
-                  ),
-                  React.createElement('div', { className:'mt-3 max-h-[520px] overflow-auto rounded-xl border border-neutral-800' },
-                    React.createElement('table', { className:'w-full border-collapse text-sm' },
-                      React.createElement('thead', { className:'sticky top-0 z-10 bg-neutral-950' },
-                        React.createElement('tr', { className:'border-b border-neutral-800 text-right text-[11px] uppercase tracking-wide text-neutral-400' },
-                          React.createElement('th', { className:'p-2 text-left' }, 'Agent'),
-                          React.createElement('th', { className:'p-2' }, 'Dials'),
-                          React.createElement('th', { className:'p-2' }, 'Calls Answered'),
-                          React.createElement('th', { className:'p-2' }, 'Whatsapps'),
-                          React.createElement('th', { className:'p-2' }, 'NO’s'),
-                          React.createElement('th', { className:'p-2' }, 'Appointments'),
-                          React.createElement('th', { className:'p-2' }, 'Listings')
-                        )
-                      ),
-                      React.createElement('tbody', null,
-                        ...data.map(r => React.createElement('tr', { key:r.agent + r.rank, className:'border-b border-neutral-900/60 hover:bg-neutral-900/40' },
-                          React.createElement('td', { className:'p-2 text-left' },
-                            React.createElement('span', { className:'mr-2 inline-flex min-w-6 items-center justify-center rounded-full border border-neutral-700 bg-neutral-900 px-2 py-0.5 text-xs text-neutral-200' }, r.rank),
-                            r.agent || '(no name)'
-                          ),
-                          React.createElement('td', { className:'p-2 text-right tabular-nums' }, r.dials),
-                          React.createElement('td', { className:'p-2 text-right tabular-nums' }, r.answered),
-                          React.createElement('td', { className:'p-2 text-right tabular-nums' }, r.whatsapps),
-                          React.createElement('td', { className:'p-2 text-right tabular-nums' }, r.nos),
-                          React.createElement('td', { className:'p-2 text-right tabular-nums font-semibold' }, r.appointments),
-                          React.createElement('td', { className:'p-2 text-right tabular-nums font-semibold' }, r.listings)
-                        )),
-                        !data.length && React.createElement('tr', null, React.createElement('td', { className:'p-4 text-center text-neutral-400', colSpan:7 }, 'No data yet.'))
-                      )
-                    )
-                  ),
-                  React.createElement('div', { className:'mt-3 flex flex-wrap items-center gap-2' },
-                    React.createElement('span', { className:'text-xs text-neutral-400' }, 'Metric for chart:'),
-                    ...metricDefs.map(m => React.createElement('button', { key:m.key, onClick:()=>setSelectedMetric(m.key), className:`rounded-lg border px-2 py-1 text-xs ${selectedMetric===m.key?'border-red-700 bg-[#C70000] text-white':'border-neutral-700 bg-neutral-900 text-neutral-300 hover:bg-neutral-800'}` }, m.label))
-                  ),
-                  React.createElement('div', { className:'mt-4 rounded-xl border border-neutral-800 p-4' },
-                    React.createElement('h3', { className:'mb-3 text-sm font-semibold text-neutral-200' }, `Top Performers — ${metricDefs.find(m=>m.key===selectedMetric)?.label}`),
-                    React.createElement('div', { className:'space-y-2' },
-                      ...chartData.map((row, idx) => React.createElement('div', { key:row.agent + idx },
-                        React.createElement('div', { className:'flex items-center justify-between text-xs text-neutral-400' },
-                          React.createElement('span', { className:'truncate pr-2' }, row.agent || '(no name)'),
-                          React.createElement('span', { className:'tabular-nums text-neutral-200' }, row.value)
-                        ),
-                        React.createElement('div', { className:'mt-1 h-2 w-full rounded-full bg-neutral-800' },
-                          React.createElement('div', { className:'h-2 rounded-full bg-[#C70000]', style:{ width: `${Math.max(3,row.pct)}%` } })
-                        )
-                      )),
-                      !chartData.length && React.createElement('div', { className:'text-xs text-neutral-500' }, 'No data.')
-                    )
-                  ),
-                  React.createElement('div', { className:'mt-3 flex flex-wrap items-center gap-2' },
-                    React.createElement('button', { onClick:()=>loadStats(view), className:'rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold hover:brightness-110' }, 'Refresh Leaderboard'),
-                    React.createElement('button', { onClick:onSendEmail, className:'rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold hover:brightness-110' }, `Send ${tabs.find(t=>t.key===view)?.label} Email`)
-                  )
-                )
-              ),
-              /* Submit */
-              React.createElement('section', { className:'rounded-2xl border border-neutral-800 bg-neutral-950/60 shadow-xl' },
-                React.createElement('div', { className:'border-b border-neutral-800/80 bg-gradient-to-b from-neutral-900 to-neutral-950 rounded-t-2xl p-4' },
-                  React.createElement('h2', { className:'text-base font-semibold' }, 'Submit Daily Activity')
-                ),
-                React.createElement('div', { className:'p-4' },
-                  React.createElement('form', { onSubmit:onSubmit },
-                    React.createElement('div', { className:'grid grid-cols-1 gap-3 md:grid-cols-4' },
-                      React.createElement('div', null,
-                        React.createElement('label', { className:'mb-1 block text-xs text-neutral-400' }, 'Date'),
-                        React.createElement('input', { type:'date', value:date, onChange:e=>setDate(e.target.value), className:'w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm' })
-                      ),
-                      React.createElement('div', null,
-                        React.createElement('label', { className:'mb-1 block text-xs text-neutral-400' }, 'Agent Name'),
-                        React.createElement('select', { value:selectedAgent, onChange:e=>setSelectedAgent(e.target.value), className:'w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm' },
-                          React.createElement('option', { value:'' }, '— Select —'),
-                          ...agents.map(a => React.createElement('option', { key:a, value:a }, a))
-                        )
-                      ),
-                      React.createElement('div', null,
-                        React.createElement('label', { className:'mb-1 block text-xs text-neutral-400' }, 'Or add new agent'),
-                        React.createElement('input', { value:newAgent, onChange:e=>setNewAgent(e.target.value), placeholder:'Type new name', className:'w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm' })
-                      ),
-                      React.createElement('div', { className:'flex items-end gap-2' },
-                        React.createElement('button', { className:'w-full rounded-lg bg-[#C70000] px-3 py-2 text-sm font-semibold shadow-[0_6px_14px_rgba(199,0,0,0.35)] hover:brightness-110' }, 'Save Entry'),
-                        React.createElement('button', { type:'button', onClick:resetForm, className:'rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm' }, 'Reset')
-                      )
-                    ),
-                    React.createElement('div', { className:'mt-3 grid grid-cols-1 gap-3 md:grid-cols-3' },
-                      ...metricDefs.map(m => React.createElement('div', { key:m.key },
-                        React.createElement('label', { className:'mb-1 block text-xs text-neutral-400' }, m.label),
-                        React.createElement('input', {
-                          type:'number', min:0, value:formVals[m.key] ?? 0,
-                          onChange:e=>setFormVals(v=>Object.assign({}, v, { [m.key]: Number(e.target.value||0) })),
-                          className:'w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-right'
-                        })
-                      ))
-                    )
-                  )
-                )
-              )
-            ),
-
-            /* Matrix (wired to backend) */
-            layout==='matrix' && React.createElement('section', { className:'rounded-2xl border border-neutral-200 bg-white text-black shadow-xl' },
-              React.createElement('div', { className:'border-b border-neutral-200 rounded-t-2xl p-4' },
-                React.createElement('h2', { className:'text-base font-semibold' }, 'Matrix — Mon–Fri (current week)'),
-                React.createElement('div', { className:'mt-2 flex flex-wrap items-center gap-2 text-sm' },
-                  React.createElement('span', { className:'text-neutral-600' }, 'Agent filter:'),
-                  React.createElement('select', { value:matrixAgent, onChange:e=>setMatrixAgent(e.target.value), className:'rounded border border-neutral-300 bg-white px-2 py-1' },
-                    React.createElement('option', { value:'' }, 'All agents'),
-                    ...agents.map(a => React.createElement('option', { key:a, value:a }, a))
-                  )
-                )
-              ),
-              React.createElement('div', { className:'p-4' },
-                React.createElement(MatrixTable, { heading:fmtWeekLabel(currentWeekStart), weekStart:currentWeekStart, days:series })
-              )
-            ),
-
-            /* Week-on-Week (wired) */
-            layout==='weekmatrix' && React.createElement('section', { className:'rounded-2xl border border-neutral-200 bg-white text-black shadow-xl' },
-              React.createElement('div', { className:'border-b border-neutral-200 rounded-t-2xl p-4' },
-                React.createElement('h2', { className:'text-base font-semibold' }, 'Week-on-Week — last 5 weeks'),
-                React.createElement('div', { className:'mt-2 flex flex-wrap items-center gap-2 text-sm' },
-                  React.createElement('span', { className:'text-neutral-600' }, 'Agent filter:'),
-                  React.createElement('select', { value:matrixAgent, onChange:e=>setMatrixAgent(e.target.value), className:'rounded border border-neutral-300 bg-white px-2 py-1' },
-                    React.createElement('option', { value:'' }, 'All agents'),
-                    ...agents.map(a => React.createElement('option', { key:a, value:a }, a))
-                  )
-                )
-              ),
-              React.createElement('div', { className:'p-4' },
-                ...weekStarts.map((ws,i) => React.createElement(MatrixTable, {
-                  key:i, heading:fmtWeekLabel(ws), weekStart:ws, days: (seriesByWeek[iso(ws)] || [])
-                }))
-              )
-            )
-          )
-        )
-      );
-    }
-
-    ReactDOM.createRoot(document.getElementById('root')).render(
-      React.createElement(App)
-    );
+      dateEl.value = todayISO();
+      await ping();
+      await loadAgents();
+      setActiveTab();
+      await loadStats();
+    })();
   </script>
 </body>
 </html>
-

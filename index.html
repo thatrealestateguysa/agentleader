@@ -1,88 +1,94 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>KWE Agent LeadGen ScoreBoard</title>
-  <style>
-    :root { color-scheme: dark; }
-    body { margin:0; font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#0b0b0c; color:#fff; }
-    .wrap { max-width:1100px; margin:0 auto; padding:20px; }
-    .header { position:sticky; top:0; z-index:10; background:rgba(0,0,0,.6); backdrop-filter:saturate(1.2) blur(6px); border-bottom:1px solid #26262a; }
-    .brand { display:flex; gap:12px; align-items:center; }
-    .kw { width:40px; height:40px; border-radius:12px; background:#C70000; display:grid; place-items:center; font-weight:800; }
-    .row { display:grid; gap:16px; grid-template-columns:1fr 1.2fr; }
-    @media (max-width:900px){ .row { grid-template-columns:1fr; } }
-    .card { border:1px solid #26262a; background:rgba(15,15,16,.7); border-radius:16px; box-shadow:0 6px 18px rgba(0,0,0,.35); }
-    .card > .head { padding:14px 16px; border-bottom:1px solid #26262a; }
-    .card > .body { padding:16px; }
-    input,select,button { font:inherit; }
-    input,select { background:#0f0f12; border:1px solid #34343a; color:#eee; border-radius:10px; padding:10px; width:100%; }
-    input[type="number"] { text-align:right; }
-    button { background:#111216; color:#eee; border:1px solid #34343a; border-radius:10px; padding:10px 12px; cursor:pointer; }
-    button.primary { background:#C70000; border-color:#7e0000; font-weight:600; }
-    button.ghost { background:#0f0f12; }
-    table { width:100%; border-collapse:collapse; }
-    thead th { position:sticky; top:0; background:#0b0b0c; }
-    th, td { padding:8px; border-bottom:1px solid #1f1f22; }
-    td.num { text-align:right; font-variant-numeric:tabular-nums; }
-    .pill { padding:4px 10px; border:1px solid #34343a; border-radius:999px; font-size:12px; }
-    .pill.ok { background:#0f2a18; color:#c6f6d5; border-color:#1e5b3a; }
-    .pill.bad { background:#121218; color:#cbd5e1; }
-    .tabs { display:flex; gap:8px; flex-wrap:wrap; }
-    .tabs button.active { background:#C70000; border-color:#7e0000; }
-    .grid { display:grid; gap:12px; }
-    .grid2 { grid-template-columns:1fr 1fr; }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>KWE Agent LeadGen ScoreBoard</title>
+<style>
+  :root { color-scheme: dark; }
+  body{margin:0;background:#0b0b0c;color:#fff;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1100px;margin:0 auto;padding:20px}
+  .card{border:1px solid #26262a;background:#141416;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+  .head{padding:12px 14px;border-bottom:1px solid #26262a;font-weight:600}
+  .body{padding:14px}
+  input,select,button{font:inherit}
+  input,select{background:#0f1013;border:1px solid #34343a;color:#eee;border-radius:10px;padding:10px;width:100%}
+  input[type="number"]{text-align:right}
+  button{background:#111216;color:#eee;border:1px solid #34343a;border-radius:10px;padding:10px 12px;cursor:pointer}
+  .primary{background:#C70000;border-color:#7e0000;font-weight:600}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px;border-bottom:1px solid #1f1f22}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .row{display:grid;gap:16px;grid-template-columns:1fr 1.2fr}
+  @media (max-width:900px){.row{grid-template-columns:1fr}}
+  .pill{padding:4px 10px;border:1px solid #34343a;border-radius:999px;font-size:12px}
+  .ok{background:#0f2a18;color:#c6f6d5;border-color:#1e5b3a}
+  .bad{background:#121218;color:#cbd5e1}
+  .muted{color:#a3a3ad}
+  pre{white-space:pre-wrap;word-break:break-word;background:#0f1013;border:1px solid #34343a;border-radius:10px;padding:10px;max-height:220px;overflow:auto}
+</style>
 </head>
 <body>
-  <div class="header">
-    <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
-      <div class="brand">
-        <div class="kw">KW</div>
-        <div>
-          <div style="font-weight:600">KWE Agent LeadGen ScoreBoard</div>
-          <div style="font-size:12px;color:#a3a3ad">Africa/Johannesburg · Google Sheet powered</div>
-        </div>
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;gap:12px;align-items:center">
+      <div style="width:40px;height:40px;border-radius:12px;background:#C70000;display:grid;place-items:center;font-weight:800">KW</div>
+      <div>
+        <div style="font-weight:600">KWE Agent LeadGen ScoreBoard</div>
+        <div class="muted" style="font-size:12px">Africa/Johannesburg · Google Sheet powered</div>
       </div>
-      <div id="conn" class="pill bad">Checking…</div>
     </div>
+    <div id="conn" class="pill bad">Checking…</div>
   </div>
 
-  <div class="wrap" style="padding:20px;">
+  <!-- Connection Debug -->
+  <div class="wrap">
+    <section class="card">
+      <div class="head">Test Connection</div>
+      <div class="body">
+        <div class="muted" style="font-size:12px">These are hard-coded here so Netlify/GitHub Pages can’t “forget” them.</div>
+        <div style="display:grid;gap:8px;margin-top:10px">
+          <input id="url" readonly>
+          <input id="tok" readonly>
+          <div style="display:flex;gap:8px">
+            <button id="test" class="primary">Run Ping</button>
+            <button id="copy" title="Copy Ping URL">Copy Ping URL</button>
+          </div>
+          <pre id="out">(no response yet)</pre>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- App -->
+  <div class="wrap">
     <div class="row">
       <!-- Submit -->
       <section class="card">
-        <div class="head"><strong>Submit Daily Activity</strong></div>
+        <div class="head">Submit Daily Activity</div>
         <div class="body">
           <form id="form">
-            <div class="grid">
+            <div style="display:grid;gap:10px">
               <div>
-                <label style="font-size:12px;color:#a3a3ad">Date</label>
-                <input id="date" type="date" />
+                <div class="muted" style="font-size:12px">Date</div>
+                <input id="date" type="date"/>
               </div>
-
               <div>
-                <label style="font-size:12px;color:#a3a3ad">Agent (select or add new)</label>
-                <select id="agentSelect">
-                  <option value="">— Select existing —</option>
-                </select>
-                <div style="font-size:12px;color:#a3a3ad;margin:6px 0 4px;">or add new</div>
+                <div class="muted" style="font-size:12px">Agent (select or add new)</div>
+                <select id="agentSelect"><option value="">— Select existing —</option></select>
+                <div class="muted" style="font-size:12px;margin:6px 0 4px">or add new</div>
                 <input id="agentNew" placeholder="Type new agent name"/>
               </div>
-
-              <div class="grid grid2">
-                <div><label style="font-size:12px;color:#a3a3ad">Dials</label><input id="dials" type="number" min="0" value="0"/></div>
-                <div><label style="font-size:12px;color:#a3a3ad">Calls Answered</label><input id="answered" type="number" min="0" value="0"/></div>
-                <div><label style="font-size:12px;color:#a3a3ad">Whatsapps</label><input id="whatsapps" type="number" min="0" value="0"/></div>
-                <div><label style="font-size:12px;color:#a3a3ad">NO’s</label><input id="nos" type="number" min="0" value="0"/></div>
-                <div><label style="font-size:12px;color:#a3a3ad">Appointments made</label><input id="appointments" type="number" min="0" value="0"/></div>
-                <div><label style="font-size:12px;color:#a3a3ad">Listings</label><input id="listings" type="number" min="0" value="0"/></div>
+              <div style="display:grid;gap:10px;grid-template-columns:1fr 1fr">
+                <div><div class="muted" style="font-size:12px">Dials</div><input id="dials" type="number" min="0" value="0"/></div>
+                <div><div class="muted" style="font-size:12px">Calls Answered</div><input id="answered" type="number" min="0" value="0"/></div>
+                <div><div class="muted" style="font-size:12px">Whatsapps</div><input id="whatsapps" type="number" min="0" value="0"/></div>
+                <div><div class="muted" style="font-size:12px">NO’s</div><input id="nos" type="number" min="0" value="0"/></div>
+                <div><div class="muted" style="font-size:12px">Appointments made</div><input id="appointments" type="number" min="0" value="0"/></div>
+                <div><div class="muted" style="font-size:12px">Listings</div><input id="listings" type="number" min="0" value="0"/></div>
               </div>
-
               <div style="display:flex;gap:8px">
                 <button class="primary" type="submit">Save Entry</button>
-                <button class="ghost" type="button" id="clearBtn">Clear numbers</button>
+                <button type="button" id="clearBtn">Clear numbers</button>
               </div>
             </div>
           </form>
@@ -91,32 +97,25 @@
 
       <!-- Leaderboard -->
       <section class="card">
-        <div class="head" style="display:flex;justify-content:space-between;align-items:center;">
-          <strong>Leaderboard</strong>
-          <div class="tabs">
-            <button data-period="daily"  class="ghost active">Today</button>
-            <button data-period="weekly" class="ghost">This Week</button>
-            <button data-period="monthly"class="ghost">This Month</button>
-            <button id="refreshBtn" class="ghost">Refresh</button>
+        <div class="head" style="display:flex;justify-content:space-between;align-items:center">
+          <div>Leaderboard</div>
+          <div style="display:flex;gap:8px">
+            <button data-period="daily">Today</button>
+            <button data-period="weekly">This Week</button>
+            <button data-period="monthly">This Month</button>
+            <button id="refreshBtn">Refresh</button>
           </div>
         </div>
         <div class="body">
-          <div style="max-height:520px;overflow:auto;border:1px solid #26262a;border-radius:12px;">
-            <table id="table">
+          <div style="max-height:520px;overflow:auto;border:1px solid #26262a;border-radius:12px">
+            <table>
               <thead>
                 <tr>
                   <th style="text-align:left">Agent</th>
-                  <th>Dials</th>
-                  <th>Calls Answered</th>
-                  <th>Whatsapps</th>
-                  <th>NO’s</th>
-                  <th>Appointments</th>
-                  <th>Listings</th>
+                  <th>Dials</th><th>Calls Answered</th><th>Whatsapps</th><th>NO’s</th><th>Appointments</th><th>Listings</th>
                 </tr>
               </thead>
-              <tbody id="tbody">
-                <tr><td colspan="7" style="text-align:center;color:#a3a3ad;padding:16px">Loading…</td></tr>
-              </tbody>
+              <tbody id="tbody"><tr><td colspan="7" style="text-align:center;color:#a3a3ad;padding:16px">Loading…</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -124,140 +123,94 @@
     </div>
   </div>
 
-  <script>
-    // NEW deployment + token:
-    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwyiazfLj2VBAA9abMiApEVf_kg9Rt2lvyN0RumoD_1JJzWtq-tWeCzNqgglv9PXRtX/exec";
-    const API_TOKEN   = "OGIyOTUxNjItOTdkMy00ZWU4LWIyNTQtYTk2OWU0Y2MyMDE3YjFkNjU2OGQtYjdlNy00MmVhLWI3NzMtNDAyYTM3MTRkOTU4";
+<script>
+  // === Your deployed values ===
+  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwyiazfLj2VBAA9abMiApEVf_kg9Rt2lvyN0RumoD_1JJzWtq-tWeCzNqgglv9PXRtX/exec";
+  const API_TOKEN   = "OGIyOTUxNjItOTdkMy00ZWU4LWIyNTQtYTk2OWU0Y2MyMDE3YjFkNjU2OGQtYjdlNy00MmVhLWI3NzMtNDAyYTM3MTRkOTU4";
 
-    async function apiGET(params){
-      const qp = new URLSearchParams({ ...params, token: API_TOKEN });
-      const res = await fetch(`${BACKEND_URL}?${qp.toString()}`);
-      let data; try { data = await res.json(); } catch { data = { ok:false, error:"Invalid JSON" }; }
-      if (!res.ok || data.error) throw new Error(data.error || "GET failed");
-      return data;
-    }
-    async function apiPOST(obj){
-      const payload = JSON.stringify({ ...obj, token: API_TOKEN });
-      const res = await fetch(BACKEND_URL, { method:"POST", body: new URLSearchParams({ payload }) });
-      let data; try { data = await res.json(); } catch { data = { ok:false, error:"Invalid JSON" }; }
-      if (!res.ok || data.error) throw new Error(data.error || "POST failed");
-      return data;
-    }
+  // Small helpers
+  async function apiGET(params){
+    const qp = new URLSearchParams({ ...params, token: API_TOKEN, t: Date.now() }); // bust cache
+    const res = await fetch(`${BACKEND_URL}?${qp.toString()}`);
+    let text = await res.text();      // for debug
+    try { var data = JSON.parse(text); } catch { data = { ok:false, error:"Invalid JSON", raw:text }; }
+    if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status} ${text}`);
+    return data;
+  }
+  async function apiPOST(obj){
+    const payload = JSON.stringify({ ...obj, token: API_TOKEN });
+    const body = new URLSearchParams({ payload, t:String(Date.now()) });
+    const res = await fetch(BACKEND_URL, { method:"POST", body });
+    let text = await res.text();
+    try { var data = JSON.parse(text); } catch { data = { ok:false, error:"Invalid JSON", raw:text }; }
+    if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status} ${text}`);
+    return data;
+  }
 
-    const connEl = document.getElementById('conn');
-    const dateEl = document.getElementById('date');
-    const agentSelect = document.getElementById('agentSelect');
-    const agentNew = document.getElementById('agentNew');
-    const fields = ["dials","answered","whatsapps","nos","appointments","listings"]
-      .reduce((m,k)=> (m[k]=document.getElementById(k),m),{});
-    const form = document.getElementById('form');
-    const clearBtn = document.getElementById('clearBtn');
-    const tbody = document.getElementById('tbody');
-    const tabs = Array.from(document.querySelectorAll('.tabs button[data-period]'));
-    const refreshBtn = document.getElementById('refreshBtn');
+  // Elements
+  const conn = document.getElementById('conn'), out = document.getElementById('out');
+  const urlI = document.getElementById('url'), tokI = document.getElementById('tok');
+  const testBtn = document.getElementById('test'), copyBtn = document.getElementById('copy');
+  const dateEl = document.getElementById('date'), agentSelect = document.getElementById('agentSelect'), agentNew = document.getElementById('agentNew');
+  const fields = ["dials","answered","whatsapps","nos","appointments","listings"].reduce((m,k)=> (m[k]=document.getElementById(k),m),{});
+  const tbody = document.getElementById('tbody'); const clearBtn = document.getElementById('clearBtn');
+  const tabs = Array.from(document.querySelectorAll('button[data-period]')); const refreshBtn = document.getElementById('refreshBtn');
+  let period = 'daily';
 
-    let currentPeriod = 'daily';
+  function todayISO(){ const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
+  function resetNumbers(){ Object.values(fields).forEach(i=>i.value=0); }
+  function print(s){ out.textContent = typeof s==='string' ? s : JSON.stringify(s,null,2); }
 
-    function todayISO(){ const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
-    function resetNumbers(){ Object.values(fields).forEach(i=> i.value = 0); }
+  async function ping(){
+    try { const d = await apiGET({ action:"ping" }); conn.textContent="Connected"; conn.className="pill ok"; print(d); }
+    catch(e){ conn.textContent="Offline"; conn.className="pill bad"; print(String(e.message||e)); }
+  }
+  async function loadAgents(){
+    try { const d = await apiGET({ action:"agents" }); agentSelect.innerHTML='<option value="">— Select existing —</option>'+(d.agents||[]).map(a=>`<option>${a}</option>`).join(''); }
+    catch { agentSelect.innerHTML='<option value=\"\">(none)</option>'; }
+  }
+  function renderTable(rows){
+    if(!rows||!rows.length){ tbody.innerHTML='<tr><td colspan=\"7\" style=\"text-align:center;color:#a3a3ad;padding:16px\">No data</td></tr>'; return; }
+    tbody.innerHTML = rows.map(r=>`<tr>
+      <td>${(r.agent||'(no name)').replace(/[&<>\"']/g,s=>({\"&\":\"&amp;\",\"<\":\"&lt;\",\">\":\"&gt;\",\"\\\"\":\"&quot;\",\"'\":\"&#39;\"}[s]))}</td>
+      <td class=\"num\">${r.dials||0}</td><td class=\"num\">${r.answered||0}</td><td class=\"num\">${r.whatsapps||0}</td>
+      <td class=\"num\">${r.nos||0}</td><td class=\"num\"><strong>${r.appointments||0}</strong></td><td class=\"num\"><strong>${r.listings||0}</strong></td>
+    </tr>`).join('');
+  }
+  async function loadStats(){
+    try { const d = await apiGET({ action:"stats", period }); renderTable(d.totals||[]); }
+    catch(e){ renderTable([]); print(String(e.message||e)); }
+  }
 
-    async function ping(){
-      try { await apiGET({ action:"ping" }); connEl.textContent = "Connected"; connEl.className = "pill ok"; }
-      catch { connEl.textContent = "Offline"; connEl.className = "pill bad"; }
-    }
+  // Events
+  testBtn.onclick = ping;
+  copyBtn.onclick = () => {
+    const testUrl = `${BACKEND_URL}?action=ping&token=${encodeURIComponent(API_TOKEN)}&t=${Date.now()}`;
+    navigator.clipboard.writeText(testUrl); print('Copied: '+testUrl);
+  };
+  clearBtn.onclick = resetNumbers;
+  tabs.forEach(b => b.onclick = () => { period=b.dataset.period; loadStats(); });
 
-    async function loadAgents(){
-      try {
-        const d = await apiGET({ action:"agents" });
-        const list = Array.isArray(d.agents) ? d.agents : [];
-        agentSelect.innerHTML = '<option value="">— Select existing —</option>' + list.map(a=>`<option>${a}</option>`).join('');
-      } catch (_) {
-        agentSelect.innerHTML = '<option value="">(none)</option>';
-      }
-    }
+  document.getElementById('form').onsubmit = async (e)=>{
+    e.preventDefault();
+    const agent = (agentNew.value.trim() || agentSelect.value).trim();
+    if (!agent) return alert('Select or type an agent name.');
+    const entry = {
+      date: dateEl.value || todayISO(), agent,
+      dials:+fields.dials.value||0, answered:+fields.answered.value||0, whatsapps:+fields.whatsapps.value||0,
+      nos:+fields.nos.value||0, appointments:+fields.appointments.value||0, listings:+fields.listings.value||0
+    };
+    try { await apiPOST({ action:'submit', entry }); if (agentNew.value.trim()) await apiPOST({ action:'registeragent', agent });
+      dateEl.value=todayISO(); agentSelect.value=''; agentNew.value=''; resetNumbers(); await loadAgents(); await loadStats(); alert('Saved ✔');
+    } catch(e){ alert('Save failed: '+String(e.message||e)); }
+  };
 
-    function renderTable(rows){
-      if (!rows || !rows.length){
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#a3a3ad;padding:16px">No data</td></tr>';
-        return;
-      }
-      tbody.innerHTML = rows.map(r=>`
-        <tr>
-          <td>${escapeHtml(r.agent||'(no name)')}</td>
-          <td class="num">${r.dials||0}</td>
-          <td class="num">${r.answered||0}</td>
-          <td class="num">${r.whatsapps||0}</td>
-          <td class="num">${r.nos||0}</td>
-          <td class="num"><strong>${r.appointments||0}</strong></td>
-          <td class="num"><strong>${r.listings||0}</strong></td>
-        </tr>
-      `).join('');
-    }
-
-    async function loadStats(){
-      try {
-        const d = await apiGET({ action:"stats", period: currentPeriod });
-        renderTable(Array.isArray(d.totals)?d.totals:[]);
-      } catch (e) {
-        renderTable([]);
-      }
-    }
-
-    function setActiveTab(){
-      tabs.forEach(b=> b.classList.toggle('active', b.dataset.period===currentPeriod));
-    }
-
-    form.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const agent = (agentNew.value.trim() || agentSelect.value).trim();
-      if (!agent) return alert("Select or type an agent name.");
-      const entry = {
-        date: dateEl.value || todayISO(),
-        agent,
-        dials: Number(fields.dials.value||0),
-        answered: Number(fields.answered.value||0),
-        whatsapps: Number(fields.whatsapps.value||0),
-        nos: Number(fields.nos.value||0),
-        appointments: Number(fields.appointments.value||0),
-        listings: Number(fields.listings.value||0),
-      };
-      try {
-        await apiPOST({ action:"submit", entry });
-        if (agentNew.value.trim()) await apiPOST({ action:"registeragent", agent });
-        dateEl.value = todayISO();
-        agentSelect.value = "";
-        agentNew.value = "";
-        resetNumbers();
-        await loadAgents();
-        await loadStats();
-        alert("Saved ✔");
-      } catch (err) {
-        alert("Save failed: " + (err.message||err));
-      }
-    });
-
-    clearBtn.addEventListener('click', resetNumbers);
-
-    tabs.forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        currentPeriod = btn.dataset.period;
-        setActiveTab();
-        loadStats();
-      });
-    });
-
-    refreshBtn.addEventListener('click', loadStats);
-
-    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;'); }
-
-    (async function init(){
-      document.title = "KWE Agent LeadGen ScoreBoard";
-      dateEl.value = todayISO();
-      await ping();
-      await loadAgents();
-      setActiveTab();
-      await loadStats();
-    })();
-  </script>
+  // Init
+  (async function(){
+    urlI.value = BACKEND_URL; tokI.value = API_TOKEN;
+    dateEl.value = todayISO();
+    await ping(); await loadAgents(); await loadStats();
+  })();
+</script>
 </body>
 </html>
